@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework.decorators import api_view, throttle_classes
-from .models import Results
+from .models import Results, InfrenceModels
 from django.core.files.base import ContentFile
 from .serializers import ResultsSerializer
 from rest_framework.response import Response
@@ -9,12 +9,21 @@ from rest_framework import status
 # Create your views here.
 import torch
 from typing import Optional
-from pydantic import BaseModel, Field
 import cv2
 from PIL import Image
 import numpy as np
 
-model = torch.hub.load('ultralytics/yolov5', 'custom', path='models/v1m.pt')  # local model
+
+class Inference:
+    def __init__(self):
+        self.model = None
+        self.load_model()    
+        
+    def load_model(self):
+        model = InfrenceModels.objects.latest('id')
+        self.model = torch.hub.load('ultralytics/yolov5', 'custom', path=model.file.path) 
+
+inference = Inference()
 
 def results_to_json(results, thresh, img):
     count = 0
@@ -46,6 +55,11 @@ def results_to_json(results, thresh, img):
 
    
 
+@api_view(['GET'])
+def reload_model(request):
+    inference.load_model()
+    return Response(status=status.HTTP_200_OK)
+
 @api_view(['POST'])
 def inference(request):
     thresh = float(request.GET.get('thresh', 0.5))
@@ -54,7 +68,7 @@ def inference(request):
     img = cv2.resize(img, (960, 960))
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # bilateral = cv2.bilateralFilter(img, 16, 150, 150)
-    result = results_to_json(model(img), thresh, img)
+    result = results_to_json(inference.model(img), thresh, img)
     data = ResultsSerializer(result, context={'request': request}).data
     return Response(data, status=status.HTTP_202_ACCEPTED)
 
