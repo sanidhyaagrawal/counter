@@ -21,6 +21,10 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from django.conf.urls import url, include
 
+from django.contrib.staticfiles.urls import static
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from . import settings
+
 ...
 
 schema_view = get_schema_view(
@@ -35,10 +39,13 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('apis/v1/', include('apis_v1.urls')),
+    path('v1/', include('apis_v1.urls')),
     url(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     url(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     url(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-
-
 ]
+
+if settings.DEBUG :
+  urlpatterns += staticfiles_urlpatterns()
+  urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

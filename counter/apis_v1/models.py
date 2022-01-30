@@ -4,7 +4,8 @@ from django.db import models
 
 class Results(models.Model):
     count = models.IntegerField()
-    img = models.ImageField(upload_to='results/')
+    image = models.ImageField(upload_to='images/', null=True)
+    output = models.ImageField(upload_to='results/', null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         return f"{self.count}"
