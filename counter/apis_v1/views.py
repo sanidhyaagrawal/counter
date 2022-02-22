@@ -43,14 +43,15 @@ def results_to_json(results, thresh, img):
             yA = int(box[1])
             img = cv2.rectangle(img, (xA, yA), (xB, yB), (255, 0, 0), 2)
     
-    ret, buf = cv2.imencode('.jpg', img) # cropped_image: cv2 / np array
-    output_img = ContentFile(buf.tobytes())
-    
+    #add count to image 
+    h,w,c = img.shape
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    cv2.putText(img, str(count), (w-100,h-100), font, 4, (255,255,255), 2, cv2.LINE_AA)
     
     
     result = Results.objects.create(count=count)
     result.image.save('{}.jpg'.format(result.pk), orignal_img)
-    result.output.save('{}.jpg'.format(result.pk), output_img)
+    result.output.save('{}.jpg'.format(result.pk), img)
     return result
 
    
