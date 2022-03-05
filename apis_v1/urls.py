@@ -7,5 +7,6 @@ from apis_v1 import views
 
 urlpatterns = [
     path('inference', views.inference, name='inference'),
+    path('reload', views.reload_model, name='reload'),
 
 ]

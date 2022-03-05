@@ -1,0 +1,5 @@
+# exclude media folder
+media
+static
+*.pyc
+__pycache__
