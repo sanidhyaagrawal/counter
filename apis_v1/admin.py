@@ -1,5 +1,4 @@
 from django.contrib import admin
-from .models import Results, InfrenceModels
+from .models import InfrenceModels
 
-admin.site.register(Results)
 admin.site.register(InfrenceModels)
